@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PO → Offline Excel (URL Images, Correct Sizing)</title>
+<style>
+  :root { --pad:14px; --grid:#ddd; --ink:#111; --muted:#666; }
+  *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  body{margin:0;background:#f6f7f8;color:var(--ink)}
+  .wrap{max-width:1100px;margin:0 auto;padding:var(--pad);display:grid;gap:var(--pad)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  button{padding:8px 12px;border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:8px;cursor:pointer}
+  .card{background:#fff;border:1px solid var(--grid);border-radius:10px;overflow:hidden}
+  .card h2{margin:0;padding:10px 12px;border-bottom:1px solid var(--grid);background:#fafafa}
+  .card .inner{padding:12px}
+
+  .a4{background:#fff;border:1px solid var(--grid);border-radius:8px;padding:12mm}
+
+  .letterhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+  .logo{height:48px;display:flex;align-items:center;gap:10px}
+  .logo img{height:48px;width:auto;display:block}
+  .company h1{font-size:18px;line-height:1.1;margin:0}
+  .company .sub{font-size:12px;color:var(--muted)}
+  .doc-title{text-align:right}
+  .doc-title h2{margin:0;font-size:22px}
+  .doc-title .code{font-size:12px;color:var(--muted)}
+
+  .info{display:grid;grid-template-columns:160px 1fr 160px 1fr;gap:6px 10px;margin:8px 0 12px}
+  .info .k{color:#444}
+  .info .v{font-weight:600}
+
+  .remarks{border:1px dashed #bbb;border-radius:8px;padding:10px;margin:8px 0 14px;background:#fcfcfc}
+  .remarks h3{margin:0 0 6px 0;font-size:14px}
+  .remarks p{margin:0;font-size:13px;color:#333}
+
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th,td{border:1px solid #000;padding:4px 6px;vertical-align:top}
+  th{background:#e9ecef;text-align:center}
+  .right{text-align:right}
+  .center{text-align:center}
+  .imgbox{width:120px;height:120px;display:flex;align-items:center;justify-content:center}
+  .imgbox img{max-width:100%;max-height:100%;display:block}
+
+  .footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px}
+  .footnote{font-size:12px;color:#555}
+  .footlogo img{height:32px;width:auto;display:block}
+
+  .note{font-size:12px;color:#555}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="bar">
+       <button id="exportBtn">Export Full Page to Excel (.xlsx)</button>
+       <span id="status" class="note"></span>
+     </div>
+
+    <div class="card">
+      <h2>Purchase Order – URL Images Demo</h2>
+      <div class="inner">
+        <div class="a4">
+          <!-- Letterhead -->
+          <div class="letterhead">
+            <div class="logo">
+              <img alt="Company Logo" crossorigin="anonymous"
+                   src="https://picsum.photos/seed/logo1/320/96">
+              <div class="company">
+                <h1>Acme Metals Pte Ltd</h1>
+                <div class="sub">UEN: 201912345Z · 123 Pioneer Ave, Singapore · +65 6123 4567</div>
+              </div>
+            </div>
+            <div class="doc-title">
+              <h2>PURCHASE ORDER</h2>
+              <div class="code">Form: PO-STD-001</div>
+            </div>
+          </div>
+
+          <!-- Document Info -->
+          <div class="info">
+            <div class="k">PO No.</div><div class="v">PO-2025-000123</div>
+            <div class="k">Date</div><div class="v">2025-09-29</div>
+            <div class="k">Supplier</div><div class="v">Steel & Co. Sdn Bhd</div>
+            <div class="k">Ship To</div><div class="v">Acme Warehouse, Jurong</div>
+            <div class="k">Currency</div><div class="v">SGD</div>
+            <div class="k">Buyer</div><div class="v">Wei Jun</div>
+          </div>
+
+          <!-- Remarks -->
+          <div class="remarks">
+            <h3>Remarks</h3>
+            <p>Deliver within 7 working days. Include mill test certificate. Packaging: palletized & shrink-wrapped.</p>
+          </div>
+
+          <!-- Items Table (URL images) -->
+          <table id="poTable">
+            <colgroup>
+              <col style="width:50px">
+              <col style="width:140px">
+              <col style="width:360px">
+              <col style="width:120px">
+              <col style="width:120px">
+              <col style="width:140px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Image</th>
+                <th>Description</th>
+                <th class="right">Qty</th>
+                <th class="right">Unit Price</th>
+                <th class="right">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="center">1</td>
+                <td class="center">
+                  <div class="imgbox">
+                    <img alt="Item A" crossorigin="anonymous"
+                         src="https://picsum.photos/id/1015/600/400">
+                  </div>
+                </td>
+                <td>Stainless Steel Flat Bar 0.5mm × 4B 304 (Cold Drawn)</td>
+                <td class="right">10</td>
+                <td class="right">25.00</td>
+                <td class="right">250.00</td>
+              </tr>
+              <tr>
+                <td class="center">2</td>
+                <td class="center">
+                  <div class="imgbox">
+                    <img alt="Item B" crossorigin="anonymous"
+                         src="https://picsum.photos/id/1025/600/400">
+                  </div>
+                </td>
+                <td>Carbon Steel Sheet HR 6mm × 4' × 8'</td>
+                <td class="right">3</td>
+                <td class="right">120.00</td>
+                <td class="right">360.00</td>
+              </tr>
+              <tr>
+                <td class="center">3</td>
+                <td class="center">
+                  <div class="imgbox">
+                    <img alt="Item C" crossorigin="anonymous"
+                         src="https://picsum.photos/id/1035/600/400">
+                  </div>
+                </td>
+                <td>Aluminium Angle 20×20×2mm, Anodized Matte</td>
+                <td class="right">5</td>
+                <td class="right">18.50</td>
+                <td class="right">92.50</td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="5" class="right"><strong>Total</strong></td>
+                <td class="right"><strong>702.50</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <!-- Footer -->
+          <div class="footer">
+            <div class="footnote">
+              Prepared by: Purchasing Dept · Terms: 30 days · Thank you for your business.
+            </div>
+            <div class="footlogo">
+              <img alt="Footer Logo" crossorigin="anonymous"
+                   src="https://picsum.photos/seed/logo2/256/64">
+            </div>
+          </div>
+
+          <p class="note" style="margin-top:8px">
+            Note: To embed URL images into Excel offline, the image hosts must allow CORS
+            (<code>Access-Control-Allow-Origin: *</code>) or be same-origin.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ExcelJS CDN -->
+  <script src="https://unpkg.com/exceljs/dist/exceljs.min.js"></script>
+
+  <script>
+    // Helpers
+    const saveAsBlob = (blob, filename) => {
+      const a=document.createElement('a'); a.download=filename; a.href=URL.createObjectURL(blob);
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+    };
+    const pxToExcelColWidth = px => Math.max(6, Math.round((px - 12) / 7));   // Excel col width approx
+    const pxToPt = px => Math.round((px * 72 / 96) * 100) / 100;               // row height needs points
+
+    async function urlToDataURL(url){
+      try{
+        const resp = await fetch(url, {mode:'cors', credentials:'omit'});
+        if(!resp.ok) throw new Error('HTTP '+resp.status);
+        const blob = await resp.blob();
+        const reader = new FileReader();
+        return await new Promise((resolve,reject)=>{
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }catch(err){
+        console.warn('Image fetch blocked:', url, err.message);
+        return null;
+      }
+    }
+    const dataURLext = d =>
+      d?.startsWith('data:image/jpeg')||d?.startsWith('data:image/jpg') ? 'jpeg' :
+      d?.startsWith('data:image/webp') ? 'webp' :
+      d?.startsWith('data:image/gif')  ? 'gif'  : 'png';
+  </script>
+
+  <script>
+  (function(){
+    const $ = (s, r=document)=>r.querySelector(s);
+    const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
+    const table = $('#poTable');
+    const exportBtn = $('#exportBtn');
+    const statusEl = $('#status');
+
+    // enable button after images load
+    (async () => {
+      const imgs = $$('img', table);
+      if (!imgs.length){ exportBtn.disabled=false; return; }
+      exportBtn.disabled = true; statusEl.textContent = 'Loading images…';
+      await Promise.all(imgs.map(img=>new Promise(res=>{
+        if (img.complete && img.naturalWidth) return res();
+        img.addEventListener('load', res, {once:true});
+        img.addEventListener('error', res, {once:true});
+        setTimeout(res, 2000);
+      })));
+      exportBtn.disabled=false; statusEl.textContent='';
+    })();
+
+    exportBtn.addEventListener('click', async () => {
+       exportBtn.disabled = true; statusEl.textContent = 'Building full page workbook…';
+
+       const wb = new ExcelJS.Workbook();
+
+       // Create multiple worksheets for different content sections
+       const mainWs = wb.addWorksheet('Main Content');
+       const headerWs = wb.addWorksheet('Header Info');
+       const imagesWs = wb.addWorksheet('All Images');
+
+       // Get all content from the page
+       const title = document.querySelector('title')?.textContent || 'Purchase Order Page';
+       const mainHeading = document.querySelector('h2')?.textContent || 'Purchase Order';
+       const card = document.querySelector('.card');
+       const noteElement = document.querySelector('.note');
+
+       // 1. HEADER WORKSHEET - Page title and document info
+       headerWs.getCell('A1').value = title;
+       headerWs.getCell('A1').font = { bold: true, size: 16 };
+       headerWs.getRow(1).height = 30;
+
+       let currentRow = 3;
+       if (mainHeading) {
+         headerWs.getCell(`A${currentRow}`).value = mainHeading;
+         headerWs.getCell(`A${currentRow}`).font = { bold: true, size: 14 };
+         currentRow += 2;
+       }
+
+       // Add document info from the page
+       const infoSection = document.querySelector('.info');
+       if (infoSection) {
+         const infoRows = infoSection.querySelectorAll('div');
+         let col = 1;
+         infoRows.forEach((div, index) => {
+           if (index % 2 === 0 && div.textContent.trim()) {
+             headerWs.getCell(currentRow, col).value = div.textContent.trim() + ':';
+             headerWs.getCell(currentRow, col).font = { bold: true };
+             if (infoRows[index + 1]) {
+               headerWs.getCell(currentRow, col + 1).value = infoRows[index + 1].textContent.trim();
+             }
+             if (col === 1) {
+               col = 3;
+             } else {
+               col = 1;
+               currentRow++;
+             }
+           }
+         });
+       }
+
+       // 2. MAIN WORKSHEET - Purchase Order Table (existing logic)
+       const table = document.getElementById('poTable');
+       const imageJobs = []; // Move declaration outside if block
+       if (table) {
+         // Column widths
+         const colEls = table.querySelectorAll('colgroup col');
+         const thCount = table.querySelector('thead tr').children.length;
+         let cols = [];
+         if (colEls.length === thCount){
+           cols = Array.from(colEls).map(c=>{
+             const w = parseFloat((c.style.width || '').replace('px','')) || 120;
+             return { width: pxToExcelColWidth(w) };
+           });
+         } else {
+           cols = Array.from(table.querySelector('thead tr').children).map(th=>{
+             const w = th.getBoundingClientRect().width || 120;
+             return { width: pxToExcelColWidth(w) };
+           });
+         }
+         mainWs.columns = cols;
+
+         // Styles
+         const grid = {style:'thin', color:{argb:'FF000000'}};
+         const styleCell = (cell, el, isHeader=false)=>{
+           const cs = el ? getComputedStyle(el) : null;
+           const align = cs ? cs.textAlign : (isHeader ? 'center':'left');
+           cell.alignment = {
+             horizontal: /right/i.test(align) ? 'right' : (/center/i.test(align) ? 'center' : 'left'),
+             vertical: isHeader ? 'middle' : 'top',
+             wrapText: true
+           };
+           cell.border = {top:grid,left:grid,right:grid,bottom:grid};
+           if (isHeader){
+             cell.font = {bold:true};
+             cell.fill = {type:'pattern',pattern:'solid',fgColor:{argb:'FFE9ECEF'}};
+           }
+         };
+
+         // Header
+         const theadTr = table.querySelector('thead tr');
+         const headerVals = Array.from(theadTr.children).map(th=>th.textContent.trim());
+         mainWs.addRow(headerVals);
+         headerVals.forEach((_,i)=>styleCell(mainWs.getCell(1,i+1), theadTr.children[i], true));
+         mainWs.getRow(1).height = pxToPt(Math.max(theadTr.getBoundingClientRect().height, 24));
+
+         // Body
+         const bodyRows = table.querySelectorAll('tbody tr');
+         for (const tr of bodyRows){
+           const tds = Array.from(tr.children);
+           const vals = tds.map(td=>{
+             if (td.querySelector('img')) return '';
+             const raw = td.textContent.trim();
+             return (/^-?\d+(\.\d+)?$/.test(raw) ? Number(raw) : raw);
+           });
+           mainWs.addRow(vals);
+           const r = mainWs.lastRow.number;
+           tds.forEach((td,i)=>{
+             const cell = mainWs.getCell(r,i+1);
+             styleCell(cell, td, false);
+             if (typeof cell.value === 'number') cell.numFmt = '0.00';
+           });
+           mainWs.getRow(r).height = pxToPt(Math.max(tr.getBoundingClientRect().height, 24));
+
+           // collect images
+           tds.forEach((td,i)=>{
+             const img = td.querySelector('img');
+             if (!img) return;
+             const box = td.querySelector('.imgbox') || td;
+             const b = box.getBoundingClientRect();
+             const wPx = Math.max(24, Math.min(b.width || 120, img.naturalWidth || 120));
+             const hPx = Math.max(24, Math.min(b.height || 120, img.naturalHeight || 120));
+             imageJobs.push({row:r, col:i+1, src:img.getAttribute('src'), wPx, hPx, worksheet: 'main'});
+             const needPt = pxToPt(hPx + 6);
+             mainWs.getRow(r).height = Math.max(mainWs.getRow(r).height || 0, needPt);
+           });
+         }
+
+         // Footer
+         const tfootTr = table.querySelector('tfoot tr');
+         if (tfootTr){
+           const cells = Array.from(tfootTr.children);
+           const vals = cells.map(td=> {
+             const t = td.textContent.trim();
+             return (/^-?\d+(\.\d+)?$/.test(t) ? Number(t) : t);
+           });
+           mainWs.addRow(vals);
+           const r = mainWs.lastRow.number;
+           cells.forEach((td,i)=>{
+             const cell = mainWs.getCell(r,i+1);
+             styleCell(cell, td, false);
+             if (typeof cell.value === 'number') cell.numFmt = '0.00';
+             if (/total/i.test(td.textContent) || i === cells.length-1) cell.font = {bold:true};
+           });
+           mainWs.getRow(r).height = pxToPt(Math.max(tfootTr.getBoundingClientRect().height, 24));
+         }
+
+         // 3. Add remarks section to main worksheet
+         const remarks = document.querySelector('.remarks');
+         if (remarks) {
+           const remarksRow = mainWs.lastRow.number + 2;
+           mainWs.getCell(remarksRow, 1).value = 'Remarks:';
+           mainWs.getCell(remarksRow, 1).font = { bold: true };
+           mainWs.getCell(remarksRow + 1, 1).value = remarks.querySelector('p')?.textContent || '';
+           mainWs.getCell(remarksRow + 1, 1).alignment = { wrapText: true };
+           mainWs.getRow(remarksRow + 1).height = 40;
+         }
+       }
+
+       // 4. ALL IMAGES WORKSHEET - Collect all images from the page
+       const allImages = document.querySelectorAll('img');
+       let imgRow = 1;
+       let imgCol = 1;
+       const pageImageJobs = [];
+
+       for (const img of allImages) {
+         const src = img.getAttribute('src');
+         if (src && src !== 'data:') {
+           const rect = img.getBoundingClientRect();
+           const wPx = Math.max(50, Math.min(rect.width || 120, 200));
+           const hPx = Math.max(50, Math.min(rect.height || 120, 200));
+
+           pageImageJobs.push({
+             row: imgRow,
+             col: imgCol,
+             src: src,
+             wPx: wPx,
+             hPx: hPx,
+             worksheet: 'images',
+             alt: img.alt || 'Image'
+           });
+
+           // Add image description
+           imagesWs.getCell(imgRow, 1).value = img.alt || `Image ${imgRow}`;
+           imagesWs.getCell(imgRow, 1).font = { bold: true };
+
+           // Set row height for image
+           imagesWs.getRow(imgRow).height = pxToPt(hPx + 10);
+
+           imgRow += Math.ceil(hPx / 60) + 2; // Space for next image
+
+           // Move to next column after 3 images
+           if (imgRow > 10) {
+             imgRow = 1;
+             imgCol += 3;
+           }
+         }
+       }
+
+       // 5. Add footer notes to main worksheet
+       if (noteElement) {
+         const noteRow = mainWs.lastRow.number + 3;
+         mainWs.getCell(noteRow, 1).value = 'Note:';
+         mainWs.getCell(noteRow, 1).font = { bold: true };
+         mainWs.getCell(noteRow + 1, 1).value = noteElement.textContent;
+         mainWs.getCell(noteRow + 1, 1).alignment = { wrapText: true };
+         mainWs.getRow(noteRow + 1).height = 50;
+       }
+
+       // 6. EMBED ALL IMAGES
+       statusEl.textContent = 'Embedding all images…';
+       let blocked = 0;
+       const allImageJobs = [...imageJobs, ...pageImageJobs];
+
+       for (const job of allImageJobs){
+         const dataURL = await urlToDataURL(job.src);
+         if (!dataURL){ blocked++; continue; }
+         const imgId = wb.addImage({ base64: dataURL, extension: dataURLext(dataURL) });
+
+         let targetWs = mainWs;
+         if (job.worksheet === 'images') {
+           targetWs = imagesWs;
+         }
+
+         const col0 = job.col - 1, row0 = job.row - 1;
+         targetWs.addImage(imgId, {
+           tl: { col: col0 + 0.1, row: row0 + 0.1 },
+           ext: { width: job.wPx, height: job.hPx },
+           editAs: 'oneCell'
+         });
+       }
+
+       statusEl.textContent = 'Writing complete webpage .xlsx…';
+       const blob = await wb.xlsx.writeBuffer().then(buf => new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+       saveAsBlob(blob, 'complete_webpage_export.xlsx');
+       statusEl.textContent = blocked ? `Complete export done (⚠️ ${blocked} image(s) blocked by CORS).` : 'Complete export done.';
+       exportBtn.disabled = false;
+     });
+  })();
+  </script>
+</body>
+</html>
