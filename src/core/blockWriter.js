@@ -1,5 +1,5 @@
-import { extractTable, buildColumnDefinitions } from './tableGrid.js';
-import { measureElement, ensureRowHeight } from '../utils/measurement.js';
+import { extractTable } from './tableGrid.js';
+import { measureElement, ensureRowHeight, pxToExcelColWidth } from '../utils/measurement.js';
 
 export class WorksheetComposer {
   constructor(sheet, imageManager, options = {}) {
@@ -7,11 +7,9 @@ export class WorksheetComposer {
     this.images = imageManager;
     this.row = 1;
     this.options = { spacingPx: 12, ...options };
-    this.columnsInitialised = false;
-    this.defaultColumnCount = options.defaultColumnCount || 6;
-    if (!this.sheet.columns || this.sheet.columns.length === 0) {
-      this.sheet.columns = new Array(this.defaultColumnCount).fill(0).map(() => ({ width: 18 }));
-    }
+    const columnWidthsPx = options.columnWidthsPx || [70, 150, 360, 110, 110, 150];
+    this.sheet.columns = columnWidthsPx.map(px => ({ width: pxToExcelColWidth(px) }));
+    this.defaultColumnCount = this.sheet.columns.length;
   }
 
   get columnCount() {
@@ -109,13 +107,6 @@ export class WorksheetComposer {
 
   writeTable(element) {
     if (!element) return;
-    if (!this.columnsInitialised) {
-      const columnDefs = buildColumnDefinitions(element);
-      if (columnDefs.length) {
-        this.sheet.columns = columnDefs;
-      }
-      this.columnsInitialised = true;
-    }
 
     const { rows, merges } = extractTable(element);
     const tableStartRow = this.row + 1;

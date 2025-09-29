@@ -3,7 +3,7 @@ import { WorksheetComposer } from './core/blockWriter.js';
 import { ImageManager } from './core/imageManager.js';
 
 const DEFAULT_OPTIONS = {
-  mode: 'layout',
+  mode: 'structure',
   sheetName: 'Export',
   defaultColumnCount: 6
 };
